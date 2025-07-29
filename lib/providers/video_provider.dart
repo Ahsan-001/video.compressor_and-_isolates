@@ -9,20 +9,56 @@ final videoStateNotifierProvider =
     );
 
 final currentVideoPathProvider = StateProvider<String>((ref) => '');
+final originalVideoPathProvider = StateProvider<String>((ref) => '');
 
 class VideoNotifier extends StateNotifier<AsyncValue<VideoCompressionResult?>> {
   VideoNotifier() : super(const AsyncValue.data(null));
 
-  Future<void> compress(
-    String path, {
-    VideoQuality quality = VideoQuality.MediumQuality,
-  }) async {
+  // Future<void> compress(
+  //   String path, {
+  //   VideoQuality quality = VideoQuality.MediumQuality,
+  // }) async {
+  //   state = const AsyncValue.loading();
+  //   try {
+  //     final result = await VideoCompressionService().compress(
+  //       path,
+  //       quality: quality,
+  //     );
+  //     state = AsyncValue.data(result);
+  //   } catch (e, st) {
+  //     state = AsyncValue.error(e, st);
+  //   }
+  // }
+
+  Future<void> compress(String path, {int maxSizeMB = 2}) async {
     state = const AsyncValue.loading();
     try {
-      final result = await VideoCompressionService().compress(
-        path,
-        quality: quality,
-      );
+      String currentPath = path;
+      late VideoCompressionResult result;
+      int attempt = 0;
+      const int maxAttempts = 3;
+
+      while (attempt < maxAttempts) {
+        attempt++;
+
+        final quality =
+            attempt == 1 ? VideoQuality.MediumQuality : VideoQuality.LowQuality;
+
+        final compressionResult = await VideoCompressionService().compress(
+          currentPath,
+          quality: quality,
+        );
+
+        final compressedSizeMB = compressionResult.compressedSize / 1024 / 1024;
+        result = compressionResult;
+
+        if (compressedSizeMB <= maxSizeMB) {
+          break;
+        }
+
+        currentPath = compressionResult.compressedPath;
+      }
+
       state = AsyncValue.data(result);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

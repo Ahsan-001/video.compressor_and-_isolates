@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_compress/video_compress.dart';
+// import 'package:video_compress/video_compress.dart';
 import '../providers/video_provider.dart';
 import '../widgets/compression_stats_widget.dart';
 
@@ -15,15 +15,17 @@ class VideoPreviewScreen extends ConsumerStatefulWidget {
 
 class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
   BetterPlayerController? _betterPlayerController;
+  late String _currentVideoPath;
 
   @override
   void initState() {
     super.initState();
-    final videoPath = ref.read(currentVideoPathProvider);
+
+    _currentVideoPath = ref.read(currentVideoPathProvider);
 
     final dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.file,
-      videoPath,
+      _currentVideoPath,
     );
 
     _betterPlayerController = BetterPlayerController(
@@ -42,27 +44,36 @@ class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
   }
 
   Future<void> _compressAgain() async {
-    final currentPath = ref.read(currentVideoPathProvider);
+    final notifier = ref.read(videoStateNotifierProvider.notifier);
 
-    await ref
-        .read(videoStateNotifierProvider.notifier)
-        .compress(currentPath, quality: VideoQuality.LowQuality);
+    final currentSize = _getSize(_currentVideoPath);
+    if (currentSize <= 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Video is already under 2MB.")),
+      );
+      return;
+    }
+
+    await notifier.compress(_currentVideoPath, maxSizeMB: 2);
 
     final result = ref.read(videoStateNotifierProvider).value;
-
     if (result != null) {
-      ref.read(currentVideoPathProvider.notifier).state = result.compressedPath;
+      _currentVideoPath = result.compressedPath;
 
       final newDataSource = BetterPlayerDataSource(
         BetterPlayerDataSourceType.file,
-        result.compressedPath,
+        _currentVideoPath,
       );
 
       _betterPlayerController?.setupDataSource(newDataSource);
     }
   }
 
-  double _getSize(String path) => File(path).lengthSync() / 1024 / 1024;
+  double _getSize(String path) {
+    final file = File(path);
+    if (!file.existsSync()) return 0;
+    return file.lengthSync() / 1024 / 1024;
+  }
 
   @override
   void dispose() {
@@ -72,17 +83,15 @@ class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final videoPath = ref.watch(currentVideoPathProvider);
     final videoState = ref.watch(videoStateNotifierProvider);
     final result = videoState.value;
 
-    final originalPath =
-        ref.read(videoStateNotifierProvider).value?.originalPath ?? videoPath;
-    final compressedPath =
-        ref.read(videoStateNotifierProvider).value?.compressedPath;
+    // final originalPath = result?.originalPath ?? _currentVideoPath;
+    final originalPath = ref.watch(originalVideoPathProvider);
+    final compressedPath = result?.compressedPath ?? _currentVideoPath;
 
     final originalSize = _getSize(originalPath);
-    final currentSize = _getSize(compressedPath ?? originalPath);
+    final currentSize = _getSize(compressedPath);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Video Preview")),
@@ -103,14 +112,14 @@ class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
             ),
             const SizedBox(height: 10),
             Text("Original Size: ${originalSize.toStringAsFixed(2)} MB"),
-            // Text("Current Playing Size: ${currentSize.toStringAsFixed(2)} MB"),
+            Text("Current Playing Size: ${currentSize.toStringAsFixed(2)} MB"),
             const Divider(),
 
             if (result != null) ...[
-              // const Text(
-              //   "Currently Playing: Compressed Video ",
-              //   style: TextStyle(color: Colors.green),
-              // ),
+              const Text(
+                "Currently Playing: Compressed Video",
+                style: TextStyle(color: Colors.green),
+              ),
               CompressionStatsWidget(result: result),
             ],
 
