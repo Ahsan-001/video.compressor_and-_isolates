@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_compressor_test/models/video_compression_result.dart';
+import 'package:video_compressor_test/video%20compressor/models/video_compression_result.dart';
 
 class CompressionStatsWidget extends StatelessWidget {
   final VideoCompressionResult result;

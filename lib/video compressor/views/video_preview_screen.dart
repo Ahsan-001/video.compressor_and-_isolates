@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_compressor_test/views/home/home.dart';
+import 'package:video_compressor_test/video%20compressor/views/home/home.dart';
 // import 'package:video_compress/video_compress.dart';
 import '../providers/video_provider.dart';
-import '../widgets/compression_stats_widget.dart';
+import '../../widgets/compression_stats_widget.dart';
 
 class VideoPreviewScreen extends ConsumerStatefulWidget {
   const VideoPreviewScreen({super.key});

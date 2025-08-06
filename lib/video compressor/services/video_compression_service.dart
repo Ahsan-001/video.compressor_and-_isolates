@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:video_compress/video_compress.dart';
-import 'package:video_compressor_test/models/video_compression_result.dart';
+import 'package:video_compressor_test/video%20compressor/models/video_compression_result.dart';
 
 class VideoCompressionService {
   Future<VideoCompressionResult> compress(

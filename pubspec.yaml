@@ -43,6 +43,7 @@ dependencies:
   # chewie: ^1.12.1
   flutter_riverpod: ^2.6.1
   better_player_plus: ^1.0.8
+  lottie: ^3.3.1
 
   # flutter_media_picker_pro: ^1.1.1
 
@@ -70,8 +71,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/gifs/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
