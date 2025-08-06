@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_compressor_test/views/home/home.dart';
 // import 'package:video_compress/video_compress.dart';
 import '../providers/video_provider.dart';
 import '../widgets/compression_stats_widget.dart';
@@ -144,6 +145,44 @@ class _VideoPreviewScreenState extends ConsumerState<VideoPreviewScreen> {
                           Text("Compress More"),
                         ],
                       ),
+            ),
+            // Spacer(),
+            const SizedBox(height: 40),
+
+            ElevatedButton(
+              onPressed: () {
+                final compressedSize = _getSize(compressedPath);
+                if (compressedSize <= 2) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Video exceeds 2MB. Please compress it again.",
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.send, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text("Submit Video", style: TextStyle(color: Colors.white)),
+                ],
+              ),
             ),
           ],
         ),

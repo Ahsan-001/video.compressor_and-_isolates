@@ -22,8 +22,8 @@ class VideoCaptureScreen extends ConsumerWidget {
 
       if (video != null) {
         videoNotifier.reset();
-        ref.read(currentVideoPathProvider.notifier).state = video.path;
         ref.read(originalVideoPathProvider.notifier).state = video.path;
+        ref.read(currentVideoPathProvider.notifier).state = video.path;
 
         Navigator.push(
           context,
@@ -37,6 +37,7 @@ class VideoCaptureScreen extends ConsumerWidget {
 
       if (video != null) {
         videoNotifier.reset();
+        ref.read(originalVideoPathProvider.notifier).state = video.path;
         ref.read(currentVideoPathProvider.notifier).state = video.path;
 
         Navigator.push(
